@@ -36,7 +36,10 @@ func newMeasurement() TemperatureMeasurement {
 func main() {
 
 	// Initialize the sensor by reading the temperature data from a file
-	initializeSensor(fileName)
+	err := initializeSensor(fileName)
+	if err != nil {
+		log.Fatalf("Error initializing sensor: %v", err)
+	}
 
 	log.Println("Sensor and buffer is initialized, reading temperature data...")
 
@@ -55,7 +58,6 @@ func main() {
 			log.Printf("Error reading temperature: %v", err)
 			break
 		}
-		log.Printf("Current temperature: %.2f", temp)
 
 		totalTemperature += temp
 		count++

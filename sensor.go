@@ -19,7 +19,7 @@ func convertRawToCelsius(raw int16) float64 {
 	return float64(int(celcius*100)) / 100.0
 }
 
-func initializeSensor(fileName string) {
+func initializeSensor(fileName string) error {
 	// Ensure the file exists and is ready for reading
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
 		log.Fatalf("File %s does not exist: %v", fileName, err)
@@ -28,8 +28,7 @@ func initializeSensor(fileName string) {
 	// Open the file
 	file, err := os.Open(fileName)
 	if err != nil {
-		log.Fatalf("Failed to open file %s: %v", fileName, err)
-		return
+		return fmt.Errorf("error opening file %s: %v", fileName, err)
 	}
 	defer file.Close()
 
@@ -37,10 +36,9 @@ func initializeSensor(fileName string) {
 	scanner := bufio.NewScanner(file)
 	if !scanner.Scan() {
 		if err := scanner.Err(); err != nil {
-			log.Fatalf("Error reading file %s: %v", fileName, err)
+			return fmt.Errorf("error reading file %s: %v", fileName, err)
 		}
-		log.Println("No temperature data found in the file")
-		return
+		return fmt.Errorf("file %s is empty", fileName)
 	}
 
 	for scanner.Scan() {
@@ -53,8 +51,7 @@ func initializeSensor(fileName string) {
 		}
 		sensorReadings = append(sensorReadings, raw)
 	}
-
-	log.Println("Sensor initialized successfully, ready to read temperature data")
+	return nil
 }
 
 func getTemperature() (float64, error) {
